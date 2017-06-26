@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Welcomew</title>
+  </head>
+  <body>
+    <h1>Dojo Secrets are greeting you stranger</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+            <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+      {%endfor%}
+    {% endif %}
+
+    <div class="wrap">
+
+    <form class="" action="{% url 'login' %}" method="post">
+      <h3>Login</h3>
+      {% csrf_token %}
+      <label>
+        <p class="nm">Email:</p>
+        <p><input type="text" name="email" value=""></p>
+      </label>
+      <label>
+          <p class="nm">Password:</p>
+          <p><input type="password" name="pw" value=""></p>
+      </label>
+      <input type="submit" class='btn' name="" value="Login">
+    </form>
+
+    <form class="" action="{% url 'reg' %}" method="post">
+      <h3>Register</h3>
+      {% csrf_token %}
+      <label>
+        <p class="nm">First Name: </p>
+        <p><input type="text" name="fname" value=""></p>
+      </label>
+      <label>
+        <p class="nm">Last Name: </p>
+        <p><input type="text" name="lname" value=""></p>
+      </label>
+      <label>
+        <p class="nm">Email: </p>
+        <p><input type="text" name="email" value=""></p>
+      </label>
+      <label>
+        <p class="nm">Password: </p>
+        <p><input type="password" name="pw" value=""></p>
+      </label>
+      <label>
+        <p class="nm">Re-password: </p>
+        <p><input type="password" name="repw" value=""></p>
+      </label>
+
+      <input type="submit" class='btn' name="" value="Register">
+    </form>
+
+  </div>
+
+
+      {% if users_off %}
+        <div class="users_debug">
+          {% for user in users %}
+            {{user.fname}} {{user.lname}} <a href="deluser/{{user.id}}">delete</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    <style media="screen">
+    h1  {text-transform: uppercase;text-align: center; color: purple}
+    h3  {border-bottom: 1px solid grey}
+    .wrap {display:flex;}
+    .wrap form {display:block; width: 46%;padding:2%}
+    .wrap label {display: flex;}
+    .wrap label p.nm{display: block; width: 30%}
+    .wrap label p{display: block; width: 48%}
+    .btn {display: block; padding: 8px;cursor: pointer;}
+    .error {
+      color:red;
+    }
+    .success {
+      color:green
+    }
+    </style>
+  </body>
+</html>
