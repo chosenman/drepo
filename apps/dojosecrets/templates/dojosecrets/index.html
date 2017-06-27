@@ -59,10 +59,12 @@
   </div>
 
 
-      {% if users_off %}
+      {% if users %}
         <div class="users_debug">
           {% for user in users %}
-            {{user.fname}} {{user.lname}} <a href="deluser/{{user.id}}">delete</a>
+            <p>
+              {{user.fname}} {{user.lname}} <a href="deluser/{{user.id}}">delete</a>
+            </p>
           {% endfor %}
         </div>
       {% endif %}

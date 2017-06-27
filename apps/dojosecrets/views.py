@@ -5,7 +5,6 @@ from django.contrib import messages
 import bcrypt
 # Generate salt, and after use it in models.py too
 # salt = bcrypt.gensalt()
-salt = "$2b$12$MJ2CfnWhsGmAjR8XLlwlfO"
 
 from .models import User, Secret
 # Create your views here.
@@ -13,11 +12,8 @@ def index(request):
     context = {
         "users": User.objects.all()
     }
-    if 'key' in request.session and "id" in request.session:
-        key = request.session['key']
-        i_d = request.session['id']
-        if User.objects.trueSession(i_d,key):
-            return redirect('secrets')
+    if "id" in request.session:
+        return redirect('secrets')
     else:
         return render(request, 'dojosecrets/index.html', context)
 
@@ -28,7 +24,7 @@ def login(request):
             email = request.POST['email']
             pw = request.POST['pw']
 
-            answer = User.objects.login(email,pw,salt)
+            answer = User.objects.login(email,pw)
 
             if not answer['email']:
                 messages.add_message(request, messages.ERROR, "We don't have such user with that email")
@@ -45,7 +41,7 @@ def login(request):
                 request.session['lname'] = answer['user'].lname
                 request.session['id'] = answer['user'].id
 
-                request.session['key'] = User.objects.esalt(request.session['id'])
+
                 return redirect("secrets")
 
         return redirect('/')
@@ -74,7 +70,7 @@ def reg(request):
             messages.add_message(request, messages.ERROR, "We already have this email in data base")
         else:
             # if everything is good
-            hashed_pw = bcrypt.hashpw(pw.encode(), salt)
+            hashed_pw = bcrypt.hashpw(pw.encode(), bcrypt.gensalt())
 
             User.objects.create(
                 fname=fname,
@@ -88,7 +84,6 @@ def reg(request):
             request.session['fname'] = fname
             request.session['lname'] = lname
             request.session['id'] = User.objects.get(email=email).id
-            request.session['key'] = User.objects.esalt(request.session['id'])
 
             messages.add_message(request, messages.SUCCESS, "Successfully registered!")
             return redirect('secrets')
@@ -99,14 +94,11 @@ def secrets(request):
     if request.method == "POST":
         pass
     else:
-        if 'key' in request.session and "id" in request.session:
-            key = request.session['key']
-            i_d = request.session['id']
-            if User.objects.trueSession(i_d,key):
-                return render(request, 'dojosecrets/secrets.html')
-            else:
-                messages.error(request, "Sorry, your session is expired, login again")
-                return redirect('/')
+        if "id" in request.session:
+            return render(request, 'dojosecrets/secrets.html')
+        else:
+            messages.error(request, "Sorry, your session is expired, login again")
+            return redirect('/')
 
 def top(request):
     pass
@@ -116,6 +108,5 @@ def deluser(request, id):
     return redirect('/')
 
 def logout(request):
-    del request.session['key']
     del request.session['id']
     return redirect('/')

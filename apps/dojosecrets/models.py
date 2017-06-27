@@ -11,14 +11,14 @@ from django.core.validators import validate_email
 todaySalt = ''
 todayDate = ''
 
+
 # Create your models here.
 class userManager(models.Manager):
-    def login(self,email,pw,salt):
+    def login(self,email,pw):
         e_mail = True
         pw_match = True
         empty = True
 
-        hashed_pw = bcrypt.hashpw(pw.encode(), salt)
 
         # # DEBUG
         # print "freshly hashed:"
@@ -33,7 +33,10 @@ class userManager(models.Manager):
             empty = False
         elif len( User.objects.filter(email=email) ) == 0:
             e_mail = False
-        elif User.objects.get(email=email).password.encode() != hashed_pw:
+
+        db_hashed = User.objects.get(email=email).password
+
+        if db_hashed != bcrypt.hashpw(pw.encode(), db_hashed.encode()):
             pw_match = False
         else:
             user = User.objects.get(email=email)
