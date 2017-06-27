@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
-
+# new commetn
 import bcrypt
 # Generate salt, and after use it in models.py too
 # salt = bcrypt.gensalt()
