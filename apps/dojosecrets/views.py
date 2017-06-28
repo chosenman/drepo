@@ -1,23 +1,55 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 
-# new commetn
+from django.db.models import Q
+from django.db.models import Count, Sum, Case, When, IntegerField
+
+import datetime
 import bcrypt
 # Generate salt, and after use it in models.py too
 # salt = bcrypt.gensalt()
 
-from .models import User, Secret
+from django.db.models import Count
+
+from .models import User, Pokes
 # Create your views here.
 def index(request):
     context = {
         "users": User.objects.all()
     }
     if "id" in request.session:
-        return redirect('secrets')
+        return redirect('/pokes')
     else:
         return render(request, 'dojosecrets/index.html', context)
 
+def pokes(request):
+    if "id" in request.session:
 
+        context = {
+            "user": User.objects.get(id=request.session['id']),
+            "plikeme": Pokes.objects.all().annotate(total=Count("poker")).filter(poked_user=request.session['id']),
+            'users': User.objects.all().exclude(id=request.session['id']).annotate(numpokes=Sum("poker_id__pokes")),
+            'youPoked':Pokes.objects.all().exclude(id=request.session['id']).filter(poked_user=request.session['id'])
+            # "users": User.objects.all().annotate( pokenumber=Count("poker")).exclude(id=request.session['id']) .exclude(id=request.session['id'])
+        }
+        return render(request, 'dojosecrets/success.html', context)
+    else:
+        return redirect("/")
+
+def poke(request, id):
+    poker_id = request.session['id']
+    poked_user_id = id
+    User.objects.poke(poker_id, poked_user_id)
+    return redirect('/pokes')
+
+
+def deluser(request, id):
+    User.objects.filter(id=id).delete()
+    return redirect('/')
+
+def logout(request):
+    del request.session['id']
+    return redirect('/')
 
 def login(request):
         if request.method == "POST":
@@ -37,27 +69,27 @@ def login(request):
                 return redirect('/')
             elif  answer['user'] != '':
                 messages.success(request, "Successfully logined!")
-                request.session['fname'] = answer['user'].fname
-                request.session['lname'] = answer['user'].lname
                 request.session['id'] = answer['user'].id
 
-
-                return redirect("secrets")
+                return redirect('/pokes')
 
         return redirect('/')
 
 def reg(request):
     if request.method == "POST":
         fname = request.POST['fname']
-        lname = request.POST['lname']
+        alias = request.POST['alias']
         email = request.POST['email']
         pw = request.POST['pw']
         repw = request.POST['repw']
+        b_date = request.POST['bdate']
 
-        answer = User.objects.reg(fname,lname,email,pw,repw)
+        answer = User.objects.reg(fname,alias,email,pw,repw,b_date)
 
-        if not answer['fname'] or not answer['lname']:
-            messages.add_message(request, messages.ERROR, 'Please enter string at least 3 characters in Name and Lastname fields')
+        if not answer['fname'] or not answer['alias']:
+            messages.add_message(request, messages.ERROR, 'Please enter string at least 3 characters in Name and Alias fields')
+        elif not answer['b_date_flag']:
+            messages.add_message(request, messages.ERROR, 'Insert please correct birth date')
         elif not answer['fl_alpha']:
             messages.add_message(request, messages.ERROR, 'Use only alphabet characters')
         elif not answer['email']:
@@ -71,42 +103,21 @@ def reg(request):
         else:
             # if everything is good
             hashed_pw = bcrypt.hashpw(pw.encode(), bcrypt.gensalt())
+            formated = datetime.datetime.strptime(b_date, "%Y-%m-%d")
+
+
 
             User.objects.create(
                 fname=fname,
-                lname=lname,
+                alias=alias,
                 email=email,
-                password=hashed_pw
+                password=hashed_pw,
+                dateOfBirth=formated
             )
 
-            # User.objects.mss(email)
-
-            request.session['fname'] = fname
-            request.session['lname'] = lname
             request.session['id'] = User.objects.get(email=email).id
 
             messages.add_message(request, messages.SUCCESS, "Successfully registered!")
-            return redirect('secrets')
+            return redirect('/pokes')
 
-    return redirect('/')
-
-def secrets(request):
-    if request.method == "POST":
-        pass
-    else:
-        if "id" in request.session:
-            return render(request, 'dojosecrets/secrets.html')
-        else:
-            messages.error(request, "Sorry, your session is expired, login again")
-            return redirect('/')
-
-def top(request):
-    pass
-
-def deluser(request, id):
-    User.objects.filter(id=id).delete()
-    return redirect('/')
-
-def logout(request):
-    del request.session['id']
     return redirect('/')

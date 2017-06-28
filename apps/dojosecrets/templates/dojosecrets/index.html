@@ -5,7 +5,7 @@
     <title>Welcomew</title>
   </head>
   <body>
-    <h1>Dojo Secrets are greeting you stranger</h1>
+    <h1>Authorization page</h1>
 
     {% if messages %}
       {% for message in messages %}
@@ -33,12 +33,12 @@
       <h3>Register</h3>
       {% csrf_token %}
       <label>
-        <p class="nm">First Name: </p>
+        <p class="nm">Name: </p>
         <p><input type="text" name="fname" value=""></p>
       </label>
       <label>
-        <p class="nm">Last Name: </p>
-        <p><input type="text" name="lname" value=""></p>
+        <p class="nm">Alias: </p>
+        <p><input type="text" name="alias" value=""></p>
       </label>
       <label>
         <p class="nm">Email: </p>
@@ -53,6 +53,11 @@
         <p><input type="password" name="repw" value=""></p>
       </label>
 
+      <label>
+        <p class="nm">Birth date: </p>
+        <p><input type="text" name="bdate" value="2017-06-01"></p>
+      </label>
+
       <input type="submit" class='btn' name="" value="Register">
     </form>
 
@@ -60,13 +65,27 @@
 
 
       {% if users %}
-        <div class="users_debug">
+        <table class="users_debug" >
+          <tr style="background:grey;color:white">
+            <td>name</td>
+            <td>alias (also password, "Kamaz" input twice)</td>
+            <td>email</td>
+            <td>d borth</td>
+            <td>action</td>
+          </tr>
           {% for user in users %}
+            <tr >
+              <td>{{user.fname}} </td>
+              <td>  {{user.alias}}</td>
+              <td>{{user.email}}</td>
+              <td>{{user.dateOfBirth}}</td>
+              <td><a href="deluser/{{user.id}}">delete</a></td>
+            </tr>
             <p>
-              {{user.fname}} {{user.lname}} <a href="deluser/{{user.id}}">delete</a>
+
             </p>
           {% endfor %}
-        </div>
+        </table>
       {% endif %}
 
     <style media="screen">
@@ -83,6 +102,9 @@
     }
     .success {
       color:green
+    }
+    table.users_debug {
+      width:100%;
     }
     </style>
   </body>

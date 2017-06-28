@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <a href="/logout" style="float:right;margin-right:30px">Log out</a>
+    {% if messages %}
+      {% for message in messages %}
+            <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+      {%endfor%}
+    {% endif %}
+
+    <h2>Welcome {{user.fname}}</h2>
+
+    {% if plikeme %}
+      You liked by: {{plikeme.total}}
+      {% for i in plikeme %}
+        {{i.total}}
+      {% endfor %}
+      people
+    {% endif %}
+    <!-- <a href="/">go back</a><br> -->
+
+<div class='mypokes'>
+    {% if youPoked %}
+      {% for i in youPoked %}
+      <p>You poked by {{i.poker.fname}} {{i.pokes}} times</p>
+      {% endfor %}
+    {% endif %}
+</div>
+
+<h2>People you may want to poke</h2>
+<table width="100%">
+  <tr style="background:grey;color:white">
+    <td>Name</td>
+    <td>Alias</td>
+    <td>Email Address</td>
+    <td>Poke History</td>
+    <td>Action</td>
+  </tr>
+  {% if users %}
+    {% for user in users %}
+      <tr>
+        <td>{{user.fname}}</td>
+        <td>{{user.alias}}</td>
+        <td>{{user.email}}</td>
+        <td>
+          {{user.numpokes}}
+
+        </td>
+        <td><a href="poke/{{user.id}}">poke</a></td>
+      </tr>
+    {% endfor %}
+  {% endif %}
+</table>
+
+
+    <style media="screen">
+      .mypokes {
+        border: 1px solid black;
+        padding:10px;
+        margin:10px;
+        width:40%;
+      }
+      table td {
+        padding:5px
+      }
+    </style>
+  </body>
+</html>
