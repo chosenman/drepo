@@ -12,52 +12,96 @@
       {%endfor%}
     {% endif %}
 
-    <h2>Welcome {{user.fname}}</h2>
+    <h2>Welcome {{user.fname}} - your id: {{request.session.id}}</h2>
 
     {% if plikeme %}
-      You liked by: {{plikeme.total}}
-      {% for i in plikeme %}
-        {{i.total}}
-      {% endfor %}
+      You liked by {{plikeme | length}}
       people
     {% endif %}
     <!-- <a href="/">go back</a><br> -->
 
-<div class='mypokes'>
-    {% if youPoked %}
+{% if youPoked %}
+  <div class='mypokes'>
       {% for i in youPoked %}
-      <p>You poked by {{i.poker.fname}} {{i.pokes}} times</p>
+      <p>
+        You poked by {{i.poker.fname}} {{i.pokes}} times
+      </p>
       {% endfor %}
-    {% endif %}
-</div>
+  </div>
+{% endif %}
 
 <h2>People you may want to poke</h2>
-<table width="100%">
+<table width="100%" class="strip">
   <tr style="background:grey;color:white">
+    <td>id</td>
     <td>Name</td>
     <td>Alias</td>
     <td>Email Address</td>
     <td>Poke History</td>
     <td>Action</td>
   </tr>
+
   {% if users %}
     {% for user in users %}
       <tr>
+        <td>{{user.id}}</td>
         <td>{{user.fname}}</td>
         <td>{{user.alias}}</td>
         <td>{{user.email}}</td>
         <td>
-          {{user.numpokes}}
-
+          {%if user.numpokes%}
+            {{user.numpokes}}
+          {%else%}
+            0
+          {%endif%}
         </td>
         <td><a href="poke/{{user.id}}">poke</a></td>
       </tr>
     {% endfor %}
   {% endif %}
+
 </table>
 
 
+
+<!--  -->
+<!--  -->
+        <!-- <h2>Debug, Pokes table</h2>
+        <table width="100%"  class="strip">
+          <tr>
+            <td>id</td>
+            <td>Pokes</td>
+            <td>poked_user</td>
+            <td>poker.id</td>
+
+          </tr>
+
+          {% if pokes_debug_off %}
+            {% for i in pokes_debug %}
+              <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.pokes}}</td>
+                <td>{{i.poked_user}}</td>
+                <td>{{i.poker.id}}</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+
+        </table> -->
+
+<!--  -->
+<!--  -->
+
     <style media="screen">
+
+
+    table.strip tr:nth-child(2n+1){
+       background:#cccccc;
+    }
+
+    table.stripy tr:nth-child(2n){
+       ...
+    }
       .mypokes {
         border: 1px solid black;
         padding:10px;

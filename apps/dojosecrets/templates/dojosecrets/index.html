@@ -65,7 +65,7 @@
 
 
       {% if users %}
-        <table class="users_debug" >
+        <table class="users_debug strip" >
           <tr style="background:grey;color:white">
             <td>name</td>
             <td>alias (also password, "Kamaz" input twice)</td>
@@ -105,6 +105,13 @@
     }
     table.users_debug {
       width:100%;
+    }
+    table.strip tr:nth-child(2n+1){
+       background:#F1F1F1;
+    }
+
+    table.stripy tr:nth-child(2n){
+       ...
     }
     </style>
   </body>

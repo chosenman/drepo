@@ -103,14 +103,15 @@ class userManager(models.Manager):
 
     def poke(self,poker_id,poked_user_id):
 
-
         poker = User.objects.get(id=poker_id)
-        if len(Pokes.objects.filter(poker=poker_id,poked_user=poked_user_id)) > 0:
-            numPokes = Pokes.objects.get(poker=poker_id,poked_user=poked_user_id)
+        poked = User.objects.get(id=poked_user_id)
+
+        if len(Pokes.objects.filter(poker=poker,poked=poked)) > 0:
+            numPokes = Pokes.objects.get(poker=poker,poked=poked)
             numPokes.pokes = int(numPokes.pokes) + 1
             numPokes.save()
         else:
-            Pokes.objects.create(pokes="1",poked_user=poked_user_id,poker=poker)
+            Pokes.objects.create(pokes="1",poked=poked,poker=poker)
         return ''
 
 
@@ -126,8 +127,8 @@ class User(models.Model):
 
 class Pokes(models.Model):
     pokes = models.IntegerField(default='0')
-    poked_user = models.IntegerField(default='0')
-    poker = models.ForeignKey(User, related_name="poker_id")
+    poker = models.ForeignKey(User, related_name="pokes_made")
+    poked = models.ForeignKey(User, related_name="pokes_recieved")
 
 
 

@@ -27,10 +27,23 @@ def pokes(request):
 
         context = {
             "user": User.objects.get(id=request.session['id']),
-            "plikeme": Pokes.objects.all().annotate(total=Count("poker")).filter(poked_user=request.session['id']),
-            'users': User.objects.all().exclude(id=request.session['id']).annotate(numpokes=Sum("poker_id__pokes")),
-            'youPoked':Pokes.objects.all().exclude(id=request.session['id']).filter(poked_user=request.session['id'])
-            # "users": User.objects.all().annotate( pokenumber=Count("poker")).exclude(id=request.session['id']) .exclude(id=request.session['id'])
+            "plikeme": Pokes.objects.annotate(total=Count("poker")).filter(poked=request.session['id']),
+            # -------------------
+            'users': User.objects.all().annotate(numpokes=Sum("pokes_recieved__pokes")).exclude(id=request.session['id']),
+            # 'users': User.objects.all(),
+            'users_debug': User.objects.all(),
+            'pokes_debug': Pokes.objects.all(),
+            # -------------------
+            'youPoked':Pokes.objects.all().filter(poked=request.session['id']),
+
+            #
+            #
+            # "greg_query": Poke.objects.values("poker__first_name", "poker__last_name").annotate(total=Count("poker")).order_by('total').filter(poked__id = user_id)
+            # {% for x in poked_num %}
+            # {{ x.poker__first_name }} {{ x.poker__last_name }} {{ x.total }}
+            # {% endfor %}
+
+            #
         }
         return render(request, 'dojosecrets/success.html', context)
     else:
