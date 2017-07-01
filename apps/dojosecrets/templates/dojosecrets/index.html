@@ -5,6 +5,7 @@
     <title>Welcomew</title>
   </head>
   <body>
+    <h2>Project deployed <a href="http://54.67.124.107/">54.67.124.107</a></h2>
     <h1>Authorization page</h1>
 
     {% if messages %}
@@ -34,11 +35,7 @@
       {% csrf_token %}
       <label>
         <p class="nm">Name: </p>
-        <p><input type="text" name="fname" value=""></p>
-      </label>
-      <label>
-        <p class="nm">Alias: </p>
-        <p><input type="text" name="alias" value=""></p>
+        <p><input type="text" name="name" value=""></p>
       </label>
       <label>
         <p class="nm">Email: </p>
@@ -68,15 +65,13 @@
         <table class="users_debug strip" >
           <tr style="background:grey;color:white">
             <td>name</td>
-            <td>alias (also password, "Kamaz" input twice)</td>
             <td>email</td>
             <td>d borth</td>
             <td>action</td>
           </tr>
           {% for user in users %}
             <tr >
-              <td>{{user.fname}} </td>
-              <td>  {{user.alias}}</td>
+              <td>{{user.name}} </td>
               <td>{{user.email}}</td>
               <td>{{user.dateOfBirth}}</td>
               <td><a href="deluser/{{user.id}}">delete</a></td>

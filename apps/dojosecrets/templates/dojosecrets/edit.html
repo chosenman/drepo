@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+        <h2>Project deployed <a href="http://54.67.124.107/">54.67.124.107</a></h2>
+
+    <div class="" style="float:right;margin-right:30px">
+      <a href="/appts">Dashboard</a> |
+      <a href="/logout" >Log out</a>
+    </div>
+
+
+
+Today is {% now "M d, H:m" %}
+
+
+<hr>
+<h2>Edit Appointment:</h2>
+{% if messages %}
+  {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+  {%endfor%}
+{% endif %}
+<form class="" action="/edit_appt" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="id" value="{{currAppintemt.id}}">
+  <p>
+    Task: <input type="text" name="task" value="{{currAppintemt.task}}">
+  </p>
+  <p>
+    Status: <select class="" name="status">
+
+      {%if currAppintemt.status == "Pending" %}
+        <option value="{{currAppintemt.status}}" default>{{currAppintemt.status}}</option>
+        <option value="Done">Done</option>
+        <option  value="Missed">Missed</option>
+      {%endif%}
+      {%if currAppintemt.status == "Missed" %}
+        <option value="{{currAppintemt.status}}" default>{{currAppintemt.status}}</option>
+        <option value="Pending">Pending</option>
+        <option  value="Missed">Missed</option>
+      {%endif%}
+
+    </select>
+  </p>
+  <p>
+    Date: <input type="text" name="date" value="{{currAppintemt.date|date:'Y-m-d'}}">
+  </p>
+  <p>
+    Time: <input type="text" name="time" value="{{currAppintemt.date|date:'H:m'}}">
+  </p>
+  <button type="submit" name="button">Update</button>
+</form>
+<!--  -->
+<!--  -->
+        <!-- <h2>Debug, Pokes table</h2>
+        <table width="100%"  class="strip">
+          <tr>
+            <td>id</td>
+            <td>Pokes</td>
+            <td>poked_user</td>
+            <td>poker.id</td>
+
+          </tr>
+
+          {% if pokes_debug_off %}
+            {% for i in pokes_debug %}
+              <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.pokes}}</td>
+                <td>{{i.poked_user}}</td>
+                <td>{{i.poker.id}}</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+
+        </table> -->
+
+<!--  -->
+<!--  -->
+
+    <style media="screen">
+
+
+    table.strip tr:nth-child(2n+1){
+       background:#cccccc;
+    }
+
+    table.stripy tr:nth-child(2n){
+       ...
+    }
+      .mypokes {
+        border: 1px solid black;
+        padding:10px;
+        margin:10px;
+        width:40%;
+      }
+      table td {
+        padding:5px
+      }
+      .error {
+        color:red;
+      }
+      .success {
+        color:green
+      }
+    </style>
+  </body>
+</html>

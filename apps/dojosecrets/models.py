@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-import datetime
-import bcrypt
+import pytz, datetime, bcrypt
+from datetime import date
+from django.utils.timezone import datetime
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -44,8 +45,8 @@ class userManager(models.Manager):
         }
         return answer
 
-    def reg(self,fname,alias,email,pw,repw,b_date):
-        print fname,alias,email,pw,repw
+    def reg(self,name,email,pw,repw,b_date):
+        print name,email,pw,repw
         f_name = True
         a_lias = True
         fl_name_alpha = True
@@ -55,10 +56,8 @@ class userManager(models.Manager):
         e_mail_uniq = True
         b_date_flag = True
 
-        if len(fname)<2:
+        if len(name)<2:
             f_name = False
-        elif len(alias)<2:
-            a_lias = False
         elif len(b_date)<9:
             b_date_flag = False
         else:
@@ -69,7 +68,7 @@ class userManager(models.Manager):
                 b_date_flag = False
 
             # is alphabetical string was imput
-            if not str(fname).isalpha() or not str(alias).isalpha():
+            if not str(name).isalpha():
                 fl_name_alpha = False
 
             # email validation
@@ -89,8 +88,7 @@ class userManager(models.Manager):
                 pw_length = False
 
         answer = {
-            'fname': f_name,
-            'alias': a_lias,
+            'name': f_name,
             'fl_alpha': fl_name_alpha,
             'email': e_mail,
             'pw_length': pw_length,
@@ -101,23 +99,129 @@ class userManager(models.Manager):
 
         return answer
 
-    def poke(self,poker_id,poked_user_id):
+    def makeAppointemt(self,user_id,date,time,task):
+        d_ate = True
+        t_ime = True
+        t_ask = True
+        d_ate_mssg = "Please enter date in correct format"
 
-        poker = User.objects.get(id=poker_id)
-        poked = User.objects.get(id=poked_user_id)
-
-        if len(Pokes.objects.filter(poker=poker,poked=poked)) > 0:
-            numPokes = Pokes.objects.get(poker=poker,poked=poked)
-            numPokes.pokes = int(numPokes.pokes) + 1
-            numPokes.save()
+        if not len(date) == 10:
+            d_ate = False
+        elif not len(time) == 5:
+            t_ime = False
+        elif len(task) < 2:
+            t_ask = False
+            print 'false'
         else:
-            Pokes.objects.create(pokes="1",poked=poked,poker=poker)
-        return ''
+            # date validation
+            fulldate = date + "-" + time
+            print fulldate
 
+            try_formatdate = False
+
+            try:
+                formated = datetime.strptime(fulldate, "%Y-%m-%d-%H:%M")
+                print 'striptime SUCCESS'
+                try_formatdate = True
+            except:
+                d_ate = False
+                print "failed"
+
+            if try_formatdate:
+                today = datetime.today()
+                if formated.day < today.day:
+                    d_ate = False
+                    d_ate_mssg = "Please enter today's date"
+                elif formated.hour < today.hour:
+                    d_ate = False
+                    d_ate_mssg = "Please enter hours in future "
+                elif formated.hour == today.hour and formated.minute < today.minute:
+                    d_ate = False
+                    d_ate_mssg = "Please enter minutes in future"
+                else:
+                    user = User.objects.get(id=user_id)
+                    Appointment.objects.create(user=user,status="Pending",task=task,date=formated)
+
+
+
+
+        answer = {
+            "d_ate": d_ate,
+            "t_ime": t_ime,
+            "d_ate_false": d_ate_mssg,
+            "t_ask": t_ask,
+            "t_ask_false": "Please fill out task field",
+            "success":"New appointment was created"
+        }
+        return answer
+
+    def editAppinment(self,app_id,status,date,time,task,user_id):
+        d_ate = True
+        t_ime = True
+        t_ask = True
+        d_ate_mssg = "Please enter date in correct format"
+
+        if not len(date) == 10:
+            d_ate = False
+        elif not len(time) == 5:
+            t_ime = False
+        elif len(task) < 2:
+            t_ask = False
+            print 'false'
+        else:
+            # date validation
+            fulldate = date + "-" + time
+            print fulldate
+
+            try_formatdate = False
+            today = datetime.today()
+
+            try:
+                formated = datetime.strptime(fulldate, "%Y-%m-%d-%H:%M")
+                print 'striptime SUCCESS'
+                print formated.minute
+                print today.minute
+                try_formatdate = True
+            except:
+                d_ate = False
+                print "failed"
+
+            if try_formatdate:
+                if formated.day < today.day:
+                    d_ate = False
+                    d_ate_mssg = "Please enter today's date"
+                elif formated.hour < today.hour:
+                    d_ate = False
+                    d_ate_mssg = "Please enter hours in future "
+                elif formated.hour == today.hour and formated.minute < today.minute:
+                    d_ate = False
+                    d_ate_mssg = "Please enter minutes in future"
+                else:
+            # numPokes = Pokes.objects.get(poker=poker,poked=poked)
+            # numPokes.pokes = int(numPokes.pokes) + 1
+            # numPokes.save()
+                    user = User.objects.get(id=user_id)
+                    ApptmentSelect = Appointment.objects.get(id=app_id)
+                    ApptmentSelect.status=status
+                    ApptmentSelect.task=task
+                    ApptmentSelect.date=formated
+                    ApptmentSelect.save()
+
+
+
+
+        answer = {
+            "d_ate": d_ate,
+            "t_ime": t_ime,
+            "d_ate_false": d_ate_mssg,
+            "t_ask": t_ask,
+            "t_ask_false": "Please fill out task field",
+            "success":"New appointment was created"
+        }
+        return answer
 
 class User(models.Model):
-    fname = models.CharField(max_length=100)
-    alias = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
     password = models.CharField(max_length=255)
 
@@ -125,10 +229,15 @@ class User(models.Model):
 
     objects = userManager()
 
-class Pokes(models.Model):
-    pokes = models.IntegerField(default='0')
-    poker = models.ForeignKey(User, related_name="pokes_made")
-    poked = models.ForeignKey(User, related_name="pokes_recieved")
+class Appointment(models.Model):
+    task = models.CharField(max_length=250)
+    status = models.CharField(max_length=100)
+    date = models.DateTimeField()
+
+    user = models.ForeignKey(User, related_name="user")
+
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
 
 

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+        <h2>Project deployed <a href="http://54.67.124.107/">54.67.124.107</a></h2>
+        <div class="" style="float:right;margin-right:30px">
+          <a href="/appts">Dashboard</a> |
+          <a href="/logout" >Log out</a>
+        </div>
+
+
+    <h2>Hello, {{user.name}}! ({{request.session.id}})</h2>
+
+
+    <!-- <a href="/">go back</a><br> -->
+<hr>
+Today is {% now "M d, H:m" %}
+
+<h2>Here are your appointments for today:</h2>
+<table width="100%" class="strip">
+  <tr style="background:grey;color:white">
+    <td>Tasks</td>
+    <td>Time</td>
+    <td>Status</td>
+    <td>Action</td>
+  </tr>
+  {% if apptstoday %}
+    {% for i in apptstoday %}
+        <tr>
+          <td>{{i.task}}</td>
+          <td>{{i.date|date:"H:m"}}</td>
+          <td>{{i.status}}</td>
+          <td>
+            {%if i.status != "Done" %}
+            <a href="appt/{{i.id}}">edit</a>
+            <a href="/delapptmt/{{i.id}}">delete</a>
+            {% endif%}
+          </td>
+        </tr>
+    {% endfor %}
+  {% endif %}
+</table>
+
+<h2>Your Other appoinments:</h2>
+<table width="50%" class="strip">
+  <tr style="background:grey;color:white">
+    <td>Tasks</td>
+    <td>Date</td>
+    <td>Time</td>
+    <td>Actions</td>
+  </tr>
+  {% if apptmnts %}
+    {% for i in apptmnts %}
+      <tr>
+        <td>{{i.task}}</td>
+        <td>{{i.date|date:"M d"}}</td>
+        <td>{{i.date|date:"H:m"}}</td>
+        <td><a href="/delapptmt/{{i.id}}">delete</a></td>
+      </tr>
+    {% endfor %}
+  {% endif %}
+</table>
+
+<hr>
+<h2>Add appoinment:</h2>
+{% if messages %}
+  {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+  {%endfor%}
+{% endif %}
+<form class="" action="/add_appt" method="post">
+  {% csrf_token %}
+  <p>
+    Date: <input type="text" name="date" value="{% now "Y-m-d" %}">
+  </p>
+  <p>
+    Time: <input type="text" name="time" value="{% now "H:m" %}">
+  </p>
+  <p>
+    Task: <input type="text" name="task" value="">
+  </p>
+  <button type="submit" name="button">Add</button>
+</form>
+<!--  -->
+<!--  -->
+        <!-- <h2>Debug, Pokes table</h2>
+        <table width="100%"  class="strip">
+          <tr>
+            <td>id</td>
+            <td>Pokes</td>
+            <td>poked_user</td>
+            <td>poker.id</td>
+
+          </tr>
+
+          {% if pokes_debug_off %}
+            {% for i in pokes_debug %}
+              <tr>
+                <td>{{i.id}}</td>
+                <td>{{i.pokes}}</td>
+                <td>{{i.poked_user}}</td>
+                <td>{{i.poker.id}}</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+
+        </table> -->
+
+<!--  -->
+<!--  -->
+
+    <style media="screen">
+
+
+    table.strip tr:nth-child(2n+1){
+       background:#cccccc;
+    }
+
+    table.stripy tr:nth-child(2n){
+       ...
+    }
+      .mypokes {
+        border: 1px solid black;
+        padding:10px;
+        margin:10px;
+        width:40%;
+      }
+      table td {
+        padding:5px
+      }
+      .error {
+        color:red;
+      }
+      .success {
+        color:green
+      }
+    </style>
+  </body>
+</html>

@@ -4,57 +4,102 @@ from django.contrib import messages
 from django.db.models import Q
 from django.db.models import Count, Sum, Case, When, IntegerField
 
-import datetime
-import bcrypt
+import pytz, datetime, bcrypt
+from datetime import date
+from django.utils.timezone import datetime
 # Generate salt, and after use it in models.py too
 # salt = bcrypt.gensalt()
 
 from django.db.models import Count
 
-from .models import User, Pokes
+from .models import User, Appointment
 # Create your views here.
 def index(request):
     context = {
         "users": User.objects.all()
     }
     if "id" in request.session:
-        return redirect('/pokes')
+        return redirect('/appts')
     else:
         return render(request, 'dojosecrets/index.html', context)
 
-def pokes(request):
-    if "id" in request.session:
 
+def appts(request):
+    if "id" in request.session:
+        today = datetime.today()
         context = {
             "user": User.objects.get(id=request.session['id']),
-            "plikeme": Pokes.objects.annotate(total=Count("poker")).filter(poked=request.session['id']),
-            # -------------------
-            'users': User.objects.all().annotate(numpokes=Sum("pokes_recieved__pokes")).exclude(id=request.session['id']),
-            # 'users': User.objects.all(),
-            'users_debug': User.objects.all(),
-            'pokes_debug': Pokes.objects.all(),
-            # -------------------
-            'youPoked':Pokes.objects.all().filter(poked=request.session['id']),
-
-            #
-            #
-            # "greg_query": Poke.objects.values("poker__first_name", "poker__last_name").annotate(total=Count("poker")).order_by('total').filter(poked__id = user_id)
-            # {% for x in poked_num %}
-            # {{ x.poker__first_name }} {{ x.poker__last_name }} {{ x.total }}
-            # {% endfor %}
-
-            #
+            "apptmnts": Appointment.objects.all(),
+            "apptstoday": Appointment.objects.all().filter(date__day=today.day)
+            # datetime.timedelta(-1, 68400)
         }
-        return render(request, 'dojosecrets/success.html', context)
+        return render(request, 'dojosecrets/appointemts.html', context)
     else:
         return redirect("/")
 
-def poke(request, id):
-    poker_id = request.session['id']
-    poked_user_id = id
-    User.objects.poke(poker_id, poked_user_id)
-    return redirect('/pokes')
+def appt(request,id):
+    if "id" in request.session:
 
+        context = {
+            'currAppintemt': Appointment.objects.get(id=id)
+        }
+        return render(request, 'dojosecrets/edit.html', context)
+    else:
+        return redirect("/")
+
+def add_appt(request):
+    if request.method == "POST":
+        user_id = request.session['id']
+        date = request.POST['date']
+        time = request.POST['time']
+        task = request.POST['task']
+        print task
+
+        answer = User.objects.makeAppointemt(user_id,date,time,task)
+
+        if not answer['d_ate'] or not answer['t_ime']:
+            messages.error(request, answer['d_ate_false'])
+        elif not answer['t_ask']:
+            messages.error(request, answer['t_ask_false'])
+        else:
+            messages.success(request, answer['success'])
+
+
+        return redirect('/appts')
+    else:
+        return redirect('/appts')
+
+def edit_appt(request):
+    if request.method == "POST":
+        print 'edit started'
+        user_id = request.session['id']
+        app_id = request.POST['id']
+        status = request.POST['status']
+        date = request.POST['date']
+        time = request.POST['time']
+        task = request.POST['task']
+        print task
+
+        answer = User.objects.editAppinment(app_id,status,date,time,task,user_id)
+
+        if not answer['d_ate'] or not answer['t_ime']:
+            messages.error(request, answer['d_ate_false'])
+        elif not answer['t_ask']:
+            messages.error(request, answer['t_ask_false'])
+        else:
+            messages.success(request, answer['success'])
+            return redirect("/appts")
+
+        url = '/appt/' + app_id
+
+        return redirect(url)
+    else:
+        return redirect("/appts")
+
+
+def delapptmt(request, id):
+    Appointment.objects.filter(id=id).delete()
+    return redirect('/')
 
 def deluser(request, id):
     User.objects.filter(id=id).delete()
@@ -84,23 +129,22 @@ def login(request):
                 messages.success(request, "Successfully logined!")
                 request.session['id'] = answer['user'].id
 
-                return redirect('/pokes')
+                return redirect('/appts')
 
         return redirect('/')
 
 def reg(request):
     if request.method == "POST":
-        fname = request.POST['fname']
-        alias = request.POST['alias']
+        name = request.POST['name']
         email = request.POST['email']
         pw = request.POST['pw']
         repw = request.POST['repw']
         b_date = request.POST['bdate']
 
-        answer = User.objects.reg(fname,alias,email,pw,repw,b_date)
+        answer = User.objects.reg(name,email,pw,repw,b_date)
 
-        if not answer['fname'] or not answer['alias']:
-            messages.add_message(request, messages.ERROR, 'Please enter string at least 3 characters in Name and Alias fields')
+        if not answer['name']:
+            messages.add_message(request, messages.ERROR, 'Please enter string at least 3 characters in Name field')
         elif not answer['b_date_flag']:
             messages.add_message(request, messages.ERROR, 'Insert please correct birth date')
         elif not answer['fl_alpha']:
@@ -121,8 +165,7 @@ def reg(request):
 
 
             User.objects.create(
-                fname=fname,
-                alias=alias,
+                name=name,
                 email=email,
                 password=hashed_pw,
                 dateOfBirth=formated
@@ -131,6 +174,6 @@ def reg(request):
             request.session['id'] = User.objects.get(email=email).id
 
             messages.add_message(request, messages.SUCCESS, "Successfully registered!")
-            return redirect('/pokes')
+            return redirect('/appts')
 
     return redirect('/')
