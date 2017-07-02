@@ -129,15 +129,18 @@ class userManager(models.Manager):
 
             if try_formatdate:
                 today = datetime.today()
-                if formated.day < today.day:
+                if formated < today:
                     d_ate = False
                     d_ate_mssg = "Please enter today's date"
-                elif formated.hour < today.hour:
-                    d_ate = False
-                    d_ate_mssg = "Please enter hours in future "
-                elif formated.hour == today.hour and formated.minute < today.minute:
-                    d_ate = False
-                    d_ate_mssg = "Please enter minutes in future"
+                # if formated.day < today.day:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter today's date"
+                # elif formated.hour < today.hour:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter hours in future "
+                # elif  formated.day <= today.day and formated.hour <= today.hour and formated.minute < today.minute:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter minutes in future"
                 else:
                     user = User.objects.get(id=user_id)
                     Appointment.objects.create(user=user,status="Pending",task=task,date=formated)
@@ -187,19 +190,19 @@ class userManager(models.Manager):
                 print "failed"
 
             if try_formatdate:
-                if formated.day < today.day:
+                if formated < today:
                     d_ate = False
                     d_ate_mssg = "Please enter today's date"
-                elif formated.hour < today.hour:
-                    d_ate = False
-                    d_ate_mssg = "Please enter hours in future "
-                elif formated.hour == today.hour and formated.minute < today.minute:
-                    d_ate = False
-                    d_ate_mssg = "Please enter minutes in future"
+                # if formated.day < today.day:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter today's date"
+                # elif formated.hour < today.hour:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter hours in future "
+                # elif  formated.day <= today.day and formated.hour <= today.hour and formated.minute < today.minute:
+                #     d_ate = False
+                #     d_ate_mssg = "Please enter minutes in future"
                 else:
-            # numPokes = Pokes.objects.get(poker=poker,poked=poked)
-            # numPokes.pokes = int(numPokes.pokes) + 1
-            # numPokes.save()
                     user = User.objects.get(id=user_id)
                     ApptmentSelect = Appointment.objects.get(id=app_id)
                     ApptmentSelect.status=status

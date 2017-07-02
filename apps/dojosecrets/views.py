@@ -29,8 +29,8 @@ def appts(request):
         today = datetime.today()
         context = {
             "user": User.objects.get(id=request.session['id']),
-            "apptmnts": Appointment.objects.all(),
-            "apptstoday": Appointment.objects.all().filter(date__day=today.day)
+            "apptmnts": Appointment.objects.all().filter(user__id=request.session['id']).filter(date__gt=today).order_by("date"),
+            "apptstoday": Appointment.objects.all().filter(date__day=today.day,date__month=today.month,date__year=today.year).filter(user__id=request.session['id']).order_by("-date")
             # datetime.timedelta(-1, 68400)
         }
         return render(request, 'dojosecrets/appointemts.html', context)
